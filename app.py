@@ -7,9 +7,10 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_groq import ChatGroq
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 
 from sentence_transformers import SentenceTransformer
+
 
 # -------------------------------------------------
 # Basic setup
