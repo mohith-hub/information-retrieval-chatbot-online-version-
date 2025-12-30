@@ -3,6 +3,8 @@ langchain
 langchain-community
 langchain-chroma
 langchain-groq
+langchain-text-splitters
 sentence-transformers
-pymupdf
 chromadb
+pymupdf
+python-dotenv
