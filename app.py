@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO)
 
 st.set_page_config(
-    page_title="DRDO Missile Systems Chatbot",
+    page_title="Chatbot System for information retrieval [online-version]",
     page_icon="🚀",
     layout="centered"
 )
