@@ -1,0 +1,101 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+venv*/
+chatbot_env/
+.env
+.env.*
+*.env
+
+# Conda
+*.conda
+*.lock
+
+# =========================
+# ML Models / Indexes / Caches
+# =========================
+sentence-transformers_all-MiniLM-L6-v2*/
+distilbert*
+faiss_index/
+chroma_db/
+whisper_models/
+*.bin
+*.pt
+*.onnx
+
+# =========================
+# Streamlit
+# =========================
+.streamlit/
+.streamlit/secrets.toml
+
+# =========================
+# Logs / Cache
+# =========================
+*.log
+*.cache
+*.tmp
+
+# =========================
+# Build / Packaging
+# =========================
+build/
+dist/
+*.spec
+
+# =========================
+# OS / Editors
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# =========================
+# Media files (ignore all)
+# =========================
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+
+# =========================
+# PDFs (keep ONLY missile_pdfs)
+# =========================
+*.pdf
+!missile_pdfs/
+!missile_pdfs/*.pdf
+# Virtual environments
+venv/
+venv312/
+env/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Vector DB / ML artifacts
+chroma_db/
+faiss_index/
+sentence-transformers_all-MiniLM-L6-v2*/
+whisper_models/
+
+# Logs
+*.log
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
