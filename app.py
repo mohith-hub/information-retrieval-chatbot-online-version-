@@ -9,9 +9,7 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_groq import ChatGroq
-
-from langchain.chains.retrieval import create_retrieval_chain
-from langchain.chains.combine_documents.stuff import create_stuff_documents_chain
+from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
 # -------------------------------------------------
@@ -70,7 +68,6 @@ def setup_vector_store():
     persist_dir = "chroma_db"
 
     if os.path.exists(persist_dir):
-         
         vector_store = Chroma(
             persist_directory=persist_dir,
             embedding_function=embeddings
@@ -106,7 +103,7 @@ def setup_vector_store():
 def get_llm():
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        st.error("GROQ_API_KEY not found. Add it to .env or Streamlit secrets.")
+        st.error("GROQ_API_KEY not found. Add it to Streamlit secrets.")
         st.stop()
 
     return ChatGroq(
@@ -115,81 +112,41 @@ def get_llm():
     )
 
 # -------------------------------------------------
-# Prompts
+# Prompt
 # -------------------------------------------------
 rag_prompt = PromptTemplate(
     template="""
-Use the following context to answer the question.
-If the answer is not in the context, say:
+You are a DRDO missile systems expert.
+Answer ONLY using the provided context.
+If the answer is not present, say:
 "I can only answer based on the provided documents."
 
 Context:
 {context}
 
 Question:
-{input}
-
-Answer:
-""",
-    input_variables=["context", "input"]
-)
-
-fallback_prompt = PromptTemplate(
-    template="""
-Answer the question using general knowledge.
-If unsure, say you do not know.
-
-Question:
 {question}
 
 Answer:
 """,
-    input_variables=["question"]
+    input_variables=["context", "question"]
 )
 
 # -------------------------------------------------
-# RAG Chain (LCEL – FINAL)
+# QA Chain (STABLE)
 # -------------------------------------------------
 @st.cache_resource
 def initialize_qa_chain():
     retriever = setup_vector_store()
     llm = get_llm()
 
-    document_chain = create_stuff_documents_chain(
+    return RetrievalQA.from_chain_type(
         llm=llm,
-        prompt=rag_prompt
-    )
-
-    return create_retrieval_chain(
         retriever=retriever,
-        combine_docs_chain=document_chain
+        chain_type="stuff",
+        chain_type_kwargs={"prompt": rag_prompt},
+        return_source_documents=False
     )
-
-# -------------------------------------------------
-# Response logic
-# -------------------------------------------------
-def get_bot_response(question, qa_chain):
-    llm = get_llm()
-
-    try:
-        result = qa_chain.invoke({"input": question})
-        answer = result.get("answer", "")
-
-        if "I can only answer based on the provided documents" in answer:
-            msg = llm.invoke(
-                fallback_prompt.format(question=question)
-            )
-            return msg.content
-
-        return answer
-
-    except Exception as e:
-        st.error(f"Error: {e}")
-        msg = llm.invoke(
-            fallback_prompt.format(question=question)
-        )
-        return msg.content
-
 
 # -------------------------------------------------
 # Streamlit UI
@@ -221,11 +178,11 @@ if user_input := st.chat_input("Ask a question about missiles"):
 
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            reply = get_bot_response(user_input, qa_chain)
-        st.markdown(reply)
+            response = qa_chain.run(user_input)
+        st.markdown(response)
 
     st.session_state.messages.append(
-        {"role": "assistant", "content": reply}
+        {"role": "assistant", "content": response}
     )
 
 if st.button("Clear Chat"):
